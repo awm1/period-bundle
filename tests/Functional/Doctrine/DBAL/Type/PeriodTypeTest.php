@@ -7,6 +7,7 @@ namespace Andante\PeriodBundle\Tests\Functional\Doctrine\DBAL\Type;
 use Andante\PeriodBundle\Tests\Fixtures\Entity\ArticleWithPeriod;
 use Andante\PeriodBundle\Tests\KernelTestCase;
 use Doctrine\ORM\EntityManagerInterface;
+use League\Period\Bounds;
 use League\Period\Period;
 
 class PeriodTypeTest extends KernelTestCase
@@ -24,10 +25,10 @@ class PeriodTypeTest extends KernelTestCase
         $startDate = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2020-01-01 00:00:00');
         /** @var \DateTimeImmutable $endDate */
         $endDate = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2020-01-02 00:00:00');
-        $period = Period::fromDatepoint(
+        $period = Period::fromDate(
             $startDate,
             $endDate,
-            Period::INCLUDE_START_EXCLUDE_END
+            Bounds::IncludeStartExcludeEnd
         );
         $article = new ArticleWithPeriod($period);
         /** @var EntityManagerInterface $em */

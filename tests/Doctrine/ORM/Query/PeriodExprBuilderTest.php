@@ -12,6 +12,7 @@ use Andante\PeriodBundle\Tests\KernelTestCase;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
+use League\Period\Bounds;
 use League\Period\Period;
 
 class PeriodExprBuilderTest extends KernelTestCase
@@ -30,10 +31,10 @@ class PeriodExprBuilderTest extends KernelTestCase
     public function testExtractionFunctionsOld(string $class): void
     {
         $this->createSchema();
-        $period = new Period(
+        $period = Period::fromDate(
             \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2020-01-01 00:00:00'),
             \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2020-01-10 00:00:00'),
-            Period::INCLUDE_START_EXCLUDE_END
+            Bounds::IncludeStartExcludeEnd
         );
         $article = new $class($period);
         /** @var EntityManagerInterface $em */
@@ -67,10 +68,10 @@ class PeriodExprBuilderTest extends KernelTestCase
     public function testExtractionFunctions(string $class): void
     {
         $this->createSchema();
-        $period = new Period(
+        $period = Period::fromDate(
             \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2020-01-01 00:00:00'),
             \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2020-01-10 00:00:00'),
-            Period::INCLUDE_START_EXCLUDE_END
+            Bounds::IncludeStartExcludeEnd
         );
         $article = new $class($period);
         /** @var EntityManagerInterface $em */

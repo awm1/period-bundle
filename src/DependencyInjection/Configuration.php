@@ -14,7 +14,7 @@ class Configuration implements ConfigurationInterface
     {
         $treeBuilder = new TreeBuilder('andante_period');
 
-        //@formatter:off
+        // @formatter:off
         /** @var ArrayNodeDefinition $node */
         $node = $treeBuilder->getRootNode();
         $node->children()
@@ -57,7 +57,7 @@ class Configuration implements ConfigurationInterface
                 ->end()
             ->end()
         ->end();
-        //@formatter:on
+        // @formatter:on
 
         return $treeBuilder;
     }

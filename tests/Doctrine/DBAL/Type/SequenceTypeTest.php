@@ -5,6 +5,7 @@ namespace Andante\PeriodBundle\Tests\Doctrine\DBAL\Type;
 use Andante\PeriodBundle\Doctrine\DBAL\Type\SequenceType;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Types\ConversionException;
+use League\Period\Bounds;
 use League\Period\Period;
 use League\Period\Sequence;
 use PHPUnit\Framework\TestCase;
@@ -43,15 +44,15 @@ class SequenceTypeTest extends TestCase
         return [
             [
                 new Sequence(
-                    Period::fromDatepoint(
+                    Period::fromDate(
                         $startDate1,
                         $endDate1,
-                        Period::INCLUDE_START_EXCLUDE_END
+                        Bounds::IncludeStartExcludeEnd
                     ),
-                    Period::fromDatepoint(
+                    Period::fromDate(
                         $startDate2,
                         $endDate2,
-                        Period::EXCLUDE_ALL
+                        Bounds::ExcludeAll
                     )
                 ),
                 '[{"startDate":"2020-01-01 00:00:00","endDate":"2020-01-02 00:00:00","boundaryType":"[)"},{"startDate":"2020-01-03 00:00:00","endDate":"2020-01-04 00:00:00","boundaryType":"()"}]',

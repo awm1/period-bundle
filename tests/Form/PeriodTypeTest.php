@@ -3,6 +3,7 @@
 namespace Andante\PeriodBundle\Tests\Form;
 
 use Andante\PeriodBundle\Form\PeriodType;
+use League\Period\Bounds;
 use League\Period\Period;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
@@ -44,10 +45,10 @@ class PeriodTypeTest extends TestCase
         $endDate = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2020-01-02 00:00:00');
         self::assertEquals(
             $data,
-            Period::fromDatepoint(
+            Period::fromDate(
                 $startDate,
                 $endDate,
-                Period::INCLUDE_START_EXCLUDE_END
+                Bounds::IncludeStartExcludeEnd
             )
         );
     }
@@ -98,9 +99,9 @@ class PeriodTypeTest extends TestCase
         $startDate = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2020-01-01 00:00:00');
         /** @var \DateTimeImmutable $endDate */
         $endDate = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2020-01-02 00:00:00');
-        $boundaryType = Period::INCLUDE_START_EXCLUDE_END;
+        $boundaryType = Bounds::IncludeStartExcludeEnd;
 
-        $period = Period::fromDatepoint(
+        $period = Period::fromDate(
             $startDate,
             $endDate,
             $boundaryType
@@ -123,9 +124,9 @@ class PeriodTypeTest extends TestCase
         $startDate = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2020-01-01 00:00:00');
         /** @var \DateTimeImmutable $endDate */
         $endDate = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2020-01-02 00:00:00');
-        $boundaryType = Period::INCLUDE_START_EXCLUDE_END;
+        $boundaryType = Bounds::IncludeStartExcludeEnd;
 
-        $period = Period::fromDatepoint(
+        $period = Period::fromDate(
             $startDate,
             $endDate,
             $boundaryType

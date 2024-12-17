@@ -5,6 +5,7 @@ namespace Andante\PeriodBundle\Tests\Doctrine\DBAL\Type;
 use Andante\PeriodBundle\Doctrine\DBAL\Type\PeriodType;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Types\ConversionException;
+use League\Period\Bounds;
 use League\Period\Period;
 use PHPUnit\Framework\TestCase;
 
@@ -37,10 +38,10 @@ class PeriodTypeTest extends TestCase
 
         return [
             [
-                Period::fromDatepoint(
+                Period::fromDate(
                     $startDate,
                     $endDate,
-                    Period::INCLUDE_START_EXCLUDE_END
+                    Bounds::IncludeStartExcludeEnd
                 ),
                 '{"startDate":"2020-01-01 00:00:00","endDate":"2020-01-02 00:00:00","boundaryType":"[)"}',
             ],

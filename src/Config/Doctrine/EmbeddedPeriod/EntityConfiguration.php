@@ -46,7 +46,7 @@ class EntityConfiguration
         return $this;
     }
 
-    public static function createFromArray(array $config, EntityConfiguration $fallbackConfig = null): self
+    public static function createFromArray(array $config, ?EntityConfiguration $fallbackConfig = null): self
     {
         $entityConfiguration = new self();
         if (\array_key_exists('start_date_column_name', $config)) {

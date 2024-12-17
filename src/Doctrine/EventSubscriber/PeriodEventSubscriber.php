@@ -6,15 +6,17 @@ namespace Andante\PeriodBundle\Doctrine\EventSubscriber;
 
 use Andante\PeriodBundle\Config\Doctrine\EmbeddedPeriod\Configuration as EmbeddedPeriodConfiguration;
 use Andante\PeriodBundle\PropertyAccess\PropertyAccessor;
-use Doctrine\Bundle\DoctrineBundle\EventSubscriber\EventSubscriberInterface;
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
+use Doctrine\ORM\Event\PostLoadEventArgs;
 use Doctrine\ORM\Events;
 use League\Period\Period;
 
-class PeriodEventSubscriber implements EventSubscriber, EventSubscriberInterface
+#[AsDoctrineListener(Events::loadClassMetadata)]
+#[AsDoctrineListener(Events::postLoad)]
+class PeriodEventSubscriber implements EventSubscriber
 {
     private PropertyAccessor $propertyAccessor;
     private EmbeddedPeriodConfiguration $embeddedPeriodConfiguration;
@@ -33,18 +35,18 @@ class PeriodEventSubscriber implements EventSubscriber, EventSubscriberInterface
         ];
     }
 
-    public function postLoad(LifecycleEventArgs $eventArgs): void
+    public function postLoad(PostLoadEventArgs $eventArgs): void
     {
-        $entity = $eventArgs->getEntity();
-        $classMetadata = $eventArgs->getEntityManager()->getClassMetadata(\get_class($entity));
+        $entity = $eventArgs->getObject();
+        $classMetadata = $eventArgs->getObjectManager()->getClassMetadata(\get_class($entity));
         // Let's search for embedded Period entities
         foreach ($classMetadata->embeddedClasses as $propertyName => $config) {
             if (Period::class === $config['class']) {
                 // Yes! Let's analyze each embeddable Period property
                 $embeddablePeriod = $this->propertyAccessor->getValue($entity, $propertyName);
                 // Let's check if this embeddablePeriod should be null
-                if ($this->propertyAccessor->isUninitialized($embeddablePeriod, 'boundaryType')) {
-                    // "boundaryType" property is not initialized.
+                if ($this->propertyAccessor->isUninitialized($embeddablePeriod, 'bounds')) {
+                    // "bounds" property is not initialized.
                     // This means this embeddable Period should be NULL
                     $this->propertyAccessor->setValue($entity, $propertyName, null);
                 }
@@ -77,7 +79,7 @@ class PeriodEventSubscriber implements EventSubscriber, EventSubscriberInterface
             ]);
 
             $classMetadata->mapField([
-                'fieldName' => 'boundaryType',
+                'fieldName' => 'bounds',
                 'type' => Types::STRING,
                 'length' => 2,
                 'nullable' => true,

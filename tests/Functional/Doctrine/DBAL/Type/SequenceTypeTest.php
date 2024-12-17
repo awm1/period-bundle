@@ -7,6 +7,7 @@ namespace Andante\PeriodBundle\Tests\Functional\Doctrine\DBAL\Type;
 use Andante\PeriodBundle\Tests\Fixtures\Entity\ArticleWithSequence;
 use Andante\PeriodBundle\Tests\KernelTestCase;
 use Doctrine\ORM\EntityManagerInterface;
+use League\Period\Bounds;
 use League\Period\Period;
 use League\Period\Sequence;
 
@@ -30,15 +31,15 @@ class SequenceTypeTest extends KernelTestCase
         /** @var \DateTimeImmutable $endDate2 */
         $endDate2 = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2020-01-04 00:00:00');
         $sequence = new Sequence(
-            Period::fromDatepoint(
+            Period::fromDate(
                 $startDate1,
                 $endDate1,
-                Period::INCLUDE_START_EXCLUDE_END
+                Bounds::IncludeStartExcludeEnd
             ),
-            Period::fromDatepoint(
+            Period::fromDate(
                 $startDate2,
                 $endDate2,
-                Period::EXCLUDE_ALL
+                Bounds::ExcludeAll
             )
         );
         $article = new ArticleWithSequence($sequence);

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Andante\PeriodBundle\Doctrine\DBAL\Type;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Types\ConversionException;
+use Doctrine\DBAL\Types\Exception\InvalidFormat;
+use Doctrine\DBAL\Types\Exception\InvalidType;
 use Doctrine\DBAL\Types\JsonType;
-use League\Period\Exception;
 use League\Period\Period;
 
 class PeriodType extends JsonType
@@ -16,7 +16,7 @@ class PeriodType extends JsonType
 
     public const START_DATE_PROPERTY = 'startDate';
     public const END_DATE_PROPERTY = 'endDate';
-    public const BOUNDARY_TYPE_PROPERTY = 'boundaryType';
+    public const BOUNDARY_TYPE_PROPERTY = 'bounds';
 
     /**
      * {@inheritdoc}
@@ -34,20 +34,20 @@ class PeriodType extends JsonType
             );
         }
 
-        throw ConversionException::conversionFailedInvalidType($value, $this->getName(), ['null', Period::class]);
+        throw InvalidType::new($value, $this->getName(), ['null', Period::class]);
     }
 
     public static function normalizePeriod(Period $period, string $datetimeFormat): array
     {
         return [
-            self::START_DATE_PROPERTY => $period->getStartDate()->format($datetimeFormat),
-            self::END_DATE_PROPERTY => $period->getEndDate()->format($datetimeFormat),
-            self::BOUNDARY_TYPE_PROPERTY => $period->getBoundaryType(),
+            self::START_DATE_PROPERTY => $period->startDate->format($datetimeFormat),
+            self::END_DATE_PROPERTY => $period->endDate->format($datetimeFormat),
+            self::BOUNDARY_TYPE_PROPERTY => $period->bounds,
         ];
     }
 
     /**
-     * @throws Exception
+     * @throws \Exception
      */
     public static function denormalizePeriod(array $value, string $datetimeFormat): Period
     {
@@ -60,10 +60,10 @@ class PeriodType extends JsonType
         /** @var \DateTimeImmutable $endDate */
         $endDate = \DateTimeImmutable::createFromFormat($datetimeFormat, (string) $endDateStr);
 
-        return Period::fromDatepoint(
+        return Period::fromDate(
             $startDate,
             $endDate,
-            (string) $boundaryType
+            $boundaryType
         );
     }
 
@@ -84,8 +84,8 @@ class PeriodType extends JsonType
             }
 
             return self::denormalizePeriod($decodedValue, $platform->getDateTimeTzFormatString());
-        } catch (Exception $e) {
-            throw ConversionException::conversionFailedFormat($value, $this->getName(), $platform->getDateTimeTzFormatString(), $e);
+        } catch (\Throwable $e) {
+            throw InvalidFormat::new($value, $this->getName(), $platform->getDateTimeTzFormatString(), $e);
         }
     }
 

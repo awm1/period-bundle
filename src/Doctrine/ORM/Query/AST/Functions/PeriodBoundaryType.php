@@ -10,6 +10,6 @@ class PeriodBoundaryType extends AbstractPeriodFunction
 
     protected function getPropertyName(): string
     {
-        return 'boundaryType';
+        return 'bounds';
     }
 }

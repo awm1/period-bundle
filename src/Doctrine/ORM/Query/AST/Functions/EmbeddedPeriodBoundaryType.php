@@ -10,6 +10,6 @@ class EmbeddedPeriodBoundaryType extends AbstractEmbeddedPeriodFunction
 
     protected function getPropertyName(): string
     {
-        return 'boundaryType';
+        return 'bounds';
     }
 }

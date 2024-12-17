@@ -9,6 +9,7 @@ use Andante\PeriodBundle\Tests\Fixtures\Entity\ArticleWithPeriodEmbedded;
 use Andante\PeriodBundle\Tests\KernelTestCase;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
+use League\Period\Bounds;
 use League\Period\Period;
 
 class PeriodFunctionsTest extends KernelTestCase
@@ -22,10 +23,10 @@ class PeriodFunctionsTest extends KernelTestCase
     public function testWithPeriodType(): void
     {
         $this->createSchema();
-        $period = new Period(
+        $period = Period::fromDate(
             \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2020-01-01 00:00:00'),
             \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2020-01-10 00:00:00'),
-            Period::INCLUDE_START_EXCLUDE_END
+            Bounds::IncludeStartExcludeEnd
         );
         $article = new ArticleWithPeriod($period);
         /** @var EntityManagerInterface $em */
@@ -53,10 +54,10 @@ class PeriodFunctionsTest extends KernelTestCase
     public function testWithPeriodEmbedded(): void
     {
         $this->createSchema();
-        $period = new Period(
+        $period = Period::fromDate(
             \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2020-01-01 00:00:00'),
             \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2020-01-10 00:00:00'),
-            Period::INCLUDE_START_EXCLUDE_END
+            Bounds::IncludeStartExcludeEnd
         );
 
         $article = new ArticleWithPeriodEmbedded($period);

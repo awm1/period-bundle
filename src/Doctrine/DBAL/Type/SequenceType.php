@@ -6,8 +6,9 @@ namespace Andante\PeriodBundle\Doctrine\DBAL\Type;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
+use Doctrine\DBAL\Types\Exception\InvalidFormat;
+use Doctrine\DBAL\Types\Exception\InvalidType;
 use Doctrine\DBAL\Types\JsonType;
-use League\Period\Exception;
 use League\Period\Period;
 use League\Period\Sequence;
 
@@ -31,13 +32,13 @@ class SequenceType extends JsonType
                         $period,
                         $platform->getDateTimeTzFormatString()
                     ),
-                    $value->toArray()
+                    $value->toList()
                 ),
                 $platform
             );
         }
 
-        throw ConversionException::conversionFailedInvalidType($value, $this->getName(), ['null', Sequence::class]);
+        throw InvalidType::new($value, $this->getName(), ['null', Sequence::class]);
     }
 
     /**
@@ -59,8 +60,8 @@ class SequenceType extends JsonType
                     parent::convertToPHPValue($value, $platform)
                 )
             );
-        } catch (Exception $e) {
-            throw ConversionException::conversionFailedFormat($value, $this->getName(), $platform->getDateTimeTzFormatString());
+        } catch (\Throwable $e) {
+            throw InvalidFormat::new($value, $this->getName(), $platform->getDateTimeTzFormatString());
         }
     }
 

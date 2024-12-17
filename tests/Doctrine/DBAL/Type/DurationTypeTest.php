@@ -23,7 +23,7 @@ class DurationTypeTest extends TestCase
     {
         return [
             [
-                Duration::createFromDateString('1 hour'),
+                Duration::fromDateString('1 hour'),
                 '+P00Y00M00DT01H00M00S',
             ],
             [

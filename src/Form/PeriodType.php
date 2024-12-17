@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Andante\PeriodBundle\Form;
 
 use Andante\PeriodBundle\Form\DataMapper\PeriodDataMapper;
-use League\Period\Exception;
+use League\Period\Bounds;
 use League\Period\Period;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
@@ -37,7 +37,7 @@ class PeriodType extends AbstractType
             $builder->add($options['boundary_type_child_name'], BoundaryTypeChoiceType::class, \array_merge_recursive(
                 [
                     'label' => 'Boundary type',
-                    'property_path' => 'boundaryType',
+                    'property_path' => 'bounds',
                 ],
                 $options['boundary_type_options']
             ));
@@ -70,15 +70,15 @@ class PeriodType extends AbstractType
 
                 if ($startDate instanceof \DateTimeInterface && $endDate instanceof \DateTimeInterface) {
                     try {
-                        return Period::fromDatepoint($startDate, $endDate, $boundaryType);
-                    } catch (Exception $e) {
+                        return Period::fromDate($startDate, $endDate, $boundaryType);
+                    } catch (\Throwable $e) {
                     }
                 }
 
                 return null;
             },
             'translation_domain' => 'AndantePeriodBundle',
-            'default_boundary_type' => Period::INCLUDE_START_EXCLUDE_END,
+            'default_boundary_type' => Bounds::IncludeStartExcludeEnd,
             'boundary_type_choice' => false,
             'start_date_child_name' => 'start',
             'start_date_form_type' => DateTimeType::class,
@@ -93,10 +93,10 @@ class PeriodType extends AbstractType
         ]);
 
         $resolver->setAllowedValues('default_boundary_type', [
-            Period::INCLUDE_START_EXCLUDE_END,
-            Period::INCLUDE_ALL,
-            Period::EXCLUDE_START_INCLUDE_END,
-            Period::EXCLUDE_ALL,
+            Bounds::IncludeStartExcludeEnd,
+            Bounds::IncludeAll,
+            Bounds::ExcludeStartIncludeEnd,
+            Bounds::ExcludeAll,
         ]);
         $resolver->setAllowedTypes('boundary_type_choice', 'bool');
         $resolver->setAllowedTypes('start_date_options', 'array');

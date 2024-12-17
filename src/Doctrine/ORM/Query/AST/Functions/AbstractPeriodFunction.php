@@ -12,6 +12,7 @@ use Doctrine\ORM\Query\AST\PathExpression;
 use Doctrine\ORM\Query\Lexer;
 use Doctrine\ORM\Query\Parser;
 use Doctrine\ORM\Query\SqlWalker;
+use Doctrine\ORM\Query\TokenType;
 use League\Period\Period;
 
 abstract class AbstractPeriodFunction extends FunctionNode
@@ -40,10 +41,10 @@ abstract class AbstractPeriodFunction extends FunctionNode
 
     public function parse(Parser $parser): void
     {
-        $parser->match(Lexer::T_IDENTIFIER);
-        $parser->match(Lexer::T_OPEN_PARENTHESIS);
+        $parser->match(TokenType::T_IDENTIFIER);
+        $parser->match(TokenType::T_OPEN_PARENTHESIS);
         $this->fieldPathExpression = $parser->StateFieldPathExpression();
-        $parser->match(Lexer::T_CLOSE_PARENTHESIS);
+        $parser->match(TokenType::T_CLOSE_PARENTHESIS);
 
         if (null === $this->fieldPathExpression->field) {
             throw new ParseException(\sprintf('"%s" DQL function must be used on a single field path', static::NAME));

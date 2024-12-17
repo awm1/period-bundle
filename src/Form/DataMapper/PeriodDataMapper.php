@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Andante\PeriodBundle\Form\DataMapper;
 
 use Andante\PeriodBundle\Exception\InvalidArgumentException;
-use League\Period\Exception;
+use League\Period\Bounds;
 use League\Period\Period;
 use Symfony\Component\Form\DataMapperInterface;
 use Symfony\Component\Form\Exception\TransformationFailedException;
@@ -14,24 +14,24 @@ use Symfony\Component\Form\FormInterface;
 
 class PeriodDataMapper implements DataMapperInterface
 {
-    private string $defaultBoundaryType;
+    private Bounds $defaultBoundaryType;
     private string $startDateChildName;
     private string $endDateChildName;
     private string $boundaryTypeChildName;
     private bool $allowNull;
 
     private const BOUNDARY_TYPES = [
-        Period::INCLUDE_START_EXCLUDE_END,
-        Period::INCLUDE_ALL,
-        Period::EXCLUDE_START_INCLUDE_END,
-        Period::EXCLUDE_ALL,
+        Bounds::IncludeStartExcludeEnd,
+        Bounds::IncludeAll,
+        Bounds::ExcludeStartIncludeEnd,
+        Bounds::ExcludeAll,
     ];
 
     public function __construct(
-        string $defaultBoundaryType = Period::INCLUDE_START_EXCLUDE_END,
+        Bounds $defaultBoundaryType = Bounds::IncludeStartExcludeEnd,
         string $startDateChildName = 'startDate',
         string $endDateChildName = 'endDate',
-        string $boundaryTypeChildName = 'boundaryType',
+        string $boundaryTypeChildName = 'bounds',
         bool $allowNull = true
     ) {
         $this->assertValidBoundaryType($defaultBoundaryType);
@@ -42,10 +42,17 @@ class PeriodDataMapper implements DataMapperInterface
         $this->allowNull = $allowNull;
     }
 
-    private function assertValidBoundaryType(string $boundaryType): void
+    private function assertValidBoundaryType($boundaryType): void
     {
         if (!\in_array($boundaryType, self::BOUNDARY_TYPES, true)) {
-            throw new InvalidArgumentException(\sprintf('Invalid boundary type "%s" provided to %s. Choice between: %s', $boundaryType, self::class, \implode(', ', self::BOUNDARY_TYPES)));
+            throw new InvalidArgumentException(
+                \sprintf(
+                    'Invalid boundary type "%s" provided to %s. Choice between: %s',
+                    $boundaryType,
+                    self::class,
+                    \implode(', ', self::BOUNDARY_TYPES)
+                )
+            );
         }
     }
 
@@ -65,14 +72,15 @@ class PeriodDataMapper implements DataMapperInterface
             throw new UnexpectedTypeException($viewData, Period::class);
         }
 
-        /** @var FormInterface[] $forms */
-        $forms = \iterator_to_array($forms);
+        if ($forms instanceof \Traversable) {
+            $forms = \iterator_to_array($forms);
+        }
 
         // initialize form field values
-        $forms[$this->startDateChildName]->setData($viewData->getStartDate());
-        $forms[$this->endDateChildName]->setData($viewData->getEndDate());
+        $forms[$this->startDateChildName]->setData($viewData->startDate);
+        $forms[$this->endDateChildName]->setData($viewData->endDate);
         if (isset($forms[$this->boundaryTypeChildName])) {
-            $forms[$this->boundaryTypeChildName]->setData($viewData->getBoundaryType());
+            $forms[$this->boundaryTypeChildName]->setData($viewData->bounds);
         }
     }
 
@@ -82,8 +90,9 @@ class PeriodDataMapper implements DataMapperInterface
      */
     public function mapFormsToData($forms, &$viewData): void
     {
-        /** @var FormInterface[] $forms */
-        $forms = \iterator_to_array($forms);
+        if ($forms instanceof \Traversable) {
+            $forms = \iterator_to_array($forms);
+        }
 
         $startDate = $forms[$this->startDateChildName]->getData();
         $endDate = $forms[$this->endDateChildName]->getData();
@@ -118,7 +127,9 @@ class PeriodDataMapper implements DataMapperInterface
 
         if ($startDate instanceof \DateTimeInterface && $endDate instanceof \DateTimeInterface) {
             if ($startDate > $endDate) {
-                $failure = new TransformationFailedException('Start date should be greater or equals then the end date.');
+                $failure = new TransformationFailedException(
+                    'Start date should be greater or equals then the end date.'
+                );
                 $failure->setInvalidMessage('Start date should be greater or equals then the end date.', [
                     '{{ startDate }}' => \json_encode($startDate),
                     '{{ endDate }}' => \json_encode($endDate),
@@ -127,8 +138,8 @@ class PeriodDataMapper implements DataMapperInterface
             }
 
             try {
-                $viewData = Period::fromDatepoint($startDate, $endDate, $boundaryType);
-            } catch (Exception $e) {
+                $viewData = Period::fromDate($startDate, $endDate, $boundaryType);
+            } catch (\Throwable $e) {
                 $failure = new TransformationFailedException('Invalid Period', 0, $e);
                 $failure->setInvalidMessage('Invalid Period.', [
                     '{{ startDate }}' => \json_encode($startDate),
